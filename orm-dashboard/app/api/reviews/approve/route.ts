@@ -17,7 +17,7 @@ export async function POST(request: Request) {
       return Response.json({ error: 'Tone không hợp lệ' }, { status: 400 });
     }
 
-    const updated = updateReview(reviewId, {
+    const updated = await updateReview(reviewId, {
       status: 'resolved',
       approvedResponse: response,
       approvedTone: tone,

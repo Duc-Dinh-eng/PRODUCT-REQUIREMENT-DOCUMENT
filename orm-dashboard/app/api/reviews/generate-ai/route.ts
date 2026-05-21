@@ -1,4 +1,4 @@
-import { getDB, updateReview } from '@/app/lib/db';
+import { getReviewById, updateReview } from '@/app/lib/db';
 import { generateMockAIReplies } from '@/app/lib/mock-data';
 
 export async function POST(request: Request) {
@@ -14,8 +14,7 @@ export async function POST(request: Request) {
       return Response.json({ error: 'Thiếu reviewId' }, { status: 400 });
     }
 
-    const db = getDB();
-    const review = db.reviews.find((r) => r.id === reviewId);
+    const review = await getReviewById(reviewId);
     if (!review) {
       return Response.json({ error: 'Review không tồn tại' }, { status: 404 });
     }
@@ -65,7 +64,7 @@ Yêu cầu: Trả về JSON THUẦN TÚY (không markdown, không code block) v�
           // Strip potential markdown code fences
           const clean = content.replace(/```json?\n?/g, '').replace(/```\n?/g, '').trim();
           const suggestions = JSON.parse(clean) as { standard: string; friendly: string; recovery: string };
-          updateReview(reviewId, { aiSuggestions: suggestions });
+          await updateReview(reviewId, { aiSuggestions: suggestions });
           return Response.json({ suggestions, mode: 'openai' });
         } catch {
           console.error('[generate-ai] JSON parse error, falling back to mock');
@@ -103,7 +102,7 @@ Trả về JSON THUẦN TÚY:
         try {
           const clean = content.replace(/```json?\n?/g, '').replace(/```\n?/g, '').trim();
           const suggestions = JSON.parse(clean) as { standard: string; friendly: string; recovery: string };
-          updateReview(reviewId, { aiSuggestions: suggestions });
+          await updateReview(reviewId, { aiSuggestions: suggestions });
           return Response.json({ suggestions, mode: 'gemini' });
         } catch {
           console.error('[generate-ai] Gemini JSON parse error, falling back to mock');
@@ -119,7 +118,7 @@ Trả về JSON THUẦN TÚY:
       review.text,
       review.placeName
     );
-    updateReview(reviewId, { aiSuggestions: suggestions });
+    await updateReview(reviewId, { aiSuggestions: suggestions });
     return Response.json({ suggestions, mode: 'mock' });
   } catch (error) {
     console.error('[POST /api/reviews/generate-ai]', error);

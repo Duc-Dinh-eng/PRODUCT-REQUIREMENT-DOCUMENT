@@ -16,7 +16,7 @@ export async function POST(request: Request) {
       // ── MOCK MODE ──────────────────────────────────────────────
       console.log('[fetch] Mock mode - generating mock reviews for', placeId);
       const mockReviews = generateMockReviews(placeId.trim());
-      addReviews(mockReviews);
+      await addReviews(mockReviews);
       return Response.json({
         reviews: mockReviews,
         placeName: mockReviews[0]?.placeName ?? placeId,
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     // ── LIVE MODE ───────────────────────────────────────────────
     console.log('[fetch] Live mode - calling Google Places API for', placeId);
 
-    // 1. Lấy Place Details (tên địa điểm)
+    // 1. Lấy Place Details (tên địa điểm + reviews)
     const detailsUrl = `https://places.googleapis.com/v1/places/${placeId.trim()}`;
     const detailsRes = await fetch(detailsUrl, {
       headers: {
@@ -39,14 +39,16 @@ export async function POST(request: Request) {
 
     if (!detailsRes.ok) {
       const errBody = await detailsRes.json().catch(() => ({}));
-      const message = (errBody as { error?: { message?: string } })?.error?.message ?? `HTTP ${detailsRes.status}`;
+      const message =
+        (errBody as { error?: { message?: string } })?.error?.message ??
+        `HTTP ${detailsRes.status}`;
       return Response.json(
         { error: `Google Places API lỗi: ${message}` },
         { status: detailsRes.status }
       );
     }
 
-    const data = await detailsRes.json() as {
+    const data = (await detailsRes.json()) as {
       id?: string;
       displayName?: { text?: string };
       reviews?: Array<{
@@ -95,7 +97,7 @@ export async function POST(request: Request) {
       };
     });
 
-    addReviews(reviews);
+    await addReviews(reviews);
 
     return Response.json({
       reviews,

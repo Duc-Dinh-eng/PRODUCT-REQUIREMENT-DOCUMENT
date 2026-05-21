@@ -140,7 +140,7 @@ body {
 /* ─── Layout ───────────────────────────────────────────────── */
 .dashboard-layout {
   display: grid;
-  grid-template-columns: 360px 1fr;
+  grid-template-columns: 390px 1fr;
   grid-template-rows: 72px 1fr;
   height: 100vh;
   overflow: hidden;
@@ -538,7 +538,6 @@ body {
 .review-item:hover {
   background: var(--bg-card);
   border-color: var(--border);
-  transform: translateX(4px);
 }
 
 .review-item.active {

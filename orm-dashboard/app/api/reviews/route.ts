@@ -2,7 +2,7 @@ import { getReviews } from '@/app/lib/db';
 
 export async function GET() {
   try {
-    const reviews = getReviews();
+    const reviews = await getReviews();
     return Response.json({ reviews, count: reviews.length });
   } catch (error) {
     console.error('[GET /api/reviews]', error);
