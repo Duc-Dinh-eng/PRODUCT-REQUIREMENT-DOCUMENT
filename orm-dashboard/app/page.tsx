@@ -559,6 +559,11 @@ export default function Dashboard() {
   // ── Main Render ────────────────────────────────────────────────────────────
   return (
     <>
+      <div className="aurora-bg">
+        <div className="aurora-blob aurora-blob-1" />
+        <div className="aurora-blob aurora-blob-2" />
+        <div className="aurora-blob aurora-blob-3" />
+      </div>
       <div className="dashboard-layout">
         {/* ── Topbar ── */}
         <header className="topbar">
@@ -700,35 +705,47 @@ export default function Dashboard() {
 
           {/* Review List */}
           <div className="review-list">
-            {filteredReviews.length === 0 && (
+            {loadingFetch ? (
+              Array.from({ length: 4 }).map((_, idx) => (
+                <div key={idx} className="review-item skeleton-shimmer" style={{ height: 96, pointerEvents: 'none' }}>
+                  <div className="avatar" style={{ background: 'rgba(255,255,255,0.06)', border: 'none' }} />
+                  <div className="review-item-content" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <div style={{ height: 14, width: '60%', background: 'rgba(255,255,255,0.06)', borderRadius: 4 }} />
+                    <div style={{ height: 10, width: '40%', background: 'rgba(255,255,255,0.06)', borderRadius: 4 }} />
+                    <div style={{ height: 12, width: '90%', background: 'rgba(255,255,255,0.06)', borderRadius: 4 }} />
+                  </div>
+                </div>
+              ))
+            ) : filteredReviews.length === 0 ? (
               <div style={{ padding: '24px 12px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>
                 Không có review phù hợp
               </div>
-            )}
-            {filteredReviews.map((r) => (
-              <div
-                key={r.id}
-                id={`review-item-${r.id}`}
-                className={`review-item${selectedId === r.id ? ' active' : ''}`}
-                onClick={() => { setSelectedId(r.id); setEditedResponses({}); setActiveTone('standard'); }}
-              >
-                <div className="avatar">{r.authorAvatar}</div>
-                <div className="review-item-content">
-                  <div className="review-meta">
-                    <div className="review-author">{r.authorName}</div>
-                    <span className={`badge badge-${r.status}`}>
-                      {r.status === 'pending' ? 'Pending' : '✓ Done'}
-                    </span>
+            ) : (
+              filteredReviews.map((r) => (
+                <div
+                  key={r.id}
+                  id={`review-item-${r.id}`}
+                  className={`review-item${selectedId === r.id ? ' active' : ''}`}
+                  onClick={() => { setSelectedId(r.id); setEditedResponses({}); setActiveTone('standard'); }}
+                >
+                  <div className="avatar">{r.authorAvatar}</div>
+                  <div className="review-item-content">
+                    <div className="review-meta">
+                      <div className="review-author">{r.authorName}</div>
+                      <span className={`badge badge-${r.status}`}>
+                        {r.status === 'pending' ? 'Pending' : '✓ Done'}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                      <Stars rating={r.rating} small />
+                      <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{formatDate(r.publishedAt)}</span>
+                    </div>
+                    <div className="review-preview">{r.text}</div>
+                    <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 3 }}>📍 {r.placeName}</div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                    <Stars rating={r.rating} small />
-                    <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{formatDate(r.publishedAt)}</span>
-                  </div>
-                  <div className="review-preview">{r.text}</div>
-                  <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 3 }}>📍 {r.placeName}</div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </aside>
 
