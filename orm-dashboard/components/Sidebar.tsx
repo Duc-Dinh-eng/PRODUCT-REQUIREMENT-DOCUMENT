@@ -197,10 +197,43 @@ export function Sidebar({
           </button>
 
           {placeDropdownOpen && (
-            <div className="absolute bottom-full left-0 mb-2 w-full bg-white border border-slate-200 rounded-2xl shadow-2xl z-40 max-h-56 overflow-y-auto overflow-x-hidden p-1.5 space-y-1">
+            <div className="absolute bottom-full left-0 mb-2 w-full bg-white border border-slate-200 rounded-2xl shadow-2xl z-40 max-h-72 overflow-y-auto overflow-x-hidden p-1.5 space-y-1">
               <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 py-1.5 border-b border-slate-100 mb-1">
                 Chọn địa điểm
               </div>
+              
+              {/* Ô nhập Place ID thủ công theo tiêu chí DP-01 của PRD */}
+              <div className="p-2 border-b border-slate-100 space-y-2">
+                <input
+                  type="text"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-indigo-500 transition font-mono"
+                  placeholder="Nhập Google Place ID..."
+                  value={placeIdInput}
+                  onChange={(e) => setPlaceIdInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleFetch();
+                      setPlaceDropdownOpen(false);
+                    }
+                  }}
+                />
+                <button
+                  disabled={loadingFetch || !placeIdInput.trim()}
+                  onClick={() => {
+                    handleFetch();
+                    setPlaceDropdownOpen(false);
+                  }}
+                  className="w-full py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold rounded-lg transition disabled:opacity-50 flex items-center justify-center gap-1 cursor-pointer"
+                >
+                  {loadingFetch ? 'Fetching...' : '🔍 Fetch Reviews'}
+                </button>
+              </div>
+
+              <div className="text-[9px] font-bold uppercase tracking-wider text-slate-400 px-3 py-1 mt-1">
+                Chọn nhanh khách sạn
+              </div>
+
               {QUICK_PLACES.map((p) => (
                 <button
                   key={p.id}
